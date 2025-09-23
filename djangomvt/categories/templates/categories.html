@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Категорії</h1>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Зображення</th>
+                    <th scope="col">Назва</th>
+                    <th scope="col">Slug</th>
+                    <th scope="col">Створено</th>
+                    <th scope="col">Оновлено</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-center">
+                        {% if category.image %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-muted">Немає</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ category.name }}</td>
+                    <td class="text-center"><span class="badge bg-secondary">{{ category.slug }}</span></td>
+                    <td class="text-muted text-center">{{ category.created_at|date:"d.m.Y H:i" }}</td>
+                    <td class="text-muted text-center">{{ category.updated_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Категорій ще немає</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
