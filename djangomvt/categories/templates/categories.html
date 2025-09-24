@@ -36,15 +36,38 @@
                     <td class="text-muted text-center">{{ category.created_at|date:"d.m.Y H:i" }}</td>
                     <td class="text-muted text-center">{{ category.updated_at|date:"d.m.Y H:i" }}</td>
                     <td class="text-muted text-center">
-                        <form action="{% url 'categories:delete_category' category.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Видалити</button>
-                        </form>
+                        <button type="button" 
+                                class="btn btn-sm btn-danger" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal{{ category.id }}">
+                            Видалити
+                        </button>
                     </td>
                 </tr>
+
+                <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Підтвердження видалення</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                      </div>
+                      <div class="modal-body">
+                        Ви впевнені, що хочете видалити категорію <strong>{{ category.name }}</strong>?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                        <form action="{% url 'categories:delete_category' category.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Так, видалити</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Категорій ще немає</td>
+                    <td colspan="7" class="text-center text-muted">Категорій ще немає</td>
                 </tr>
                 {% endfor %}
             </tbody>
