@@ -4,6 +4,9 @@
 <div class="container mt-5">
     <h1 class="text-center mb-4">Категорії</h1>
 
+    <a href="{% url 'categories:add_category' %}" 
+    class="btn btn-success mb-3">Додати категорію</a>
+
     <div class="table-responsive">
         <table class="table table-hover table-striped align-middle shadow-sm">
             <thead class="table-dark text-center">
@@ -14,6 +17,7 @@
                     <th scope="col">Slug</th>
                     <th scope="col">Створено</th>
                     <th scope="col">Оновлено</th>
+                    <th scope="col">Дії</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +35,12 @@
                     <td class="text-center"><span class="badge bg-secondary">{{ category.slug }}</span></td>
                     <td class="text-muted text-center">{{ category.created_at|date:"d.m.Y H:i" }}</td>
                     <td class="text-muted text-center">{{ category.updated_at|date:"d.m.Y H:i" }}</td>
+                    <td class="text-muted text-center">
+                        <form action="{% url 'categories:delete_category' category.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Видалити</button>
+                        </form>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
