@@ -22,6 +22,8 @@ def add_category(request):
 def delete_category(request, category_id):
     try:
         category = Category.objects.get(id=category_id)
+        if category.image:
+                category.image.delete(save=False)
         category.delete()
     except Category.DoesNotExist:
         pass
