@@ -12,7 +12,6 @@ def add_category(request):
         form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
             category = form.save(commit=False)
-            category.slug = slugify(category.name)
             category.save()
             return redirect('categories:show_categories')
     else:
@@ -27,3 +26,20 @@ def delete_category(request, category_id):
     except Category.DoesNotExist:
         pass
     return redirect('categories:show_categories')
+
+def edit_category(request, category_id):
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return redirect('categories:show_categories')
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES, instance=category)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.save()
+            return redirect('categories:show_categories')
+    else:
+        form = CategoryForm(instance=category)
+
+    return render(request, 'edit_category.html', {'form': form, 'category': category})

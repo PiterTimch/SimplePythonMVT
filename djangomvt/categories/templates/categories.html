@@ -42,6 +42,8 @@
                                 data-bs-target="#deleteModal{{ category.id }}">
                             Видалити
                         </button>
+
+                        <a href="{% url 'categories:edit_category' category.id %}" class="btn btn-sm btn-primary">Редагувати</a>
                     </td>
                 </tr>
 
