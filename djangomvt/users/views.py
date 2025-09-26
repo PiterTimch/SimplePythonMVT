@@ -14,6 +14,8 @@ def register(request):
                 user.email = form.cleaned_data['email']
                 user.first_name = form.cleaned_data['first_name']
                 user.last_name = form.cleaned_data['last_name']
+                # Ensure password is set when using commit=False
+                user.set_password(form.cleaned_data['password1'])
                 if 'image' in request.FILES:
                     optimized_image, image_name = compress_image(request.FILES['image'], size=(300,300))
                     user.image_small.save(image_name, optimized_image, save=False)
@@ -22,6 +24,8 @@ def register(request):
                     optimized_image, image_name = compress_image(request.FILES['image'], size=(1200,1200))
                     user.image_large.save(image_name, optimized_image, save=False)
                 user.save()
+                # Auto-login after successful registration
+                auth_login(request, user)
                 return redirect('categories:show_categories')
             except Exception as e:
                 messages.error(request, f'Помилка при реєстрації: {str(e)}')
@@ -35,19 +39,19 @@ def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-
-            user = authenticate(request, username=email, password=password)
-
+            user = form.get_user()
             if user is not None:
                 auth_login(request, user)
                 return redirect('categories:show_categories')
-            else:
-                messages.error(request, 'Невірний email або пароль')
         else:
             messages.error(request, 'Виправте помилки у формі')
     else:
         form = LoginForm()
     
     return render(request, 'login.html', {'form': form})
+
+from django.contrib.auth import logout as auth_logout
+
+def logout(request):
+    auth_logout(request)
+    return redirect('homePage')
