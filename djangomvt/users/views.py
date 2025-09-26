@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm
+from .forms import *
 from .utils import compress_image
 from django.contrib import messages
 
@@ -30,3 +30,19 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
  
+def login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.email = form.cleaned_data['email']
+                user.save()
+                return redirect('catefories:show_categories')
+            except Exception as e:
+                messages.error(request, f'Помилка при реєстрації: {str(e)}')
+        else:
+            messages.success(request, 'Виправте помилки в формі')
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})

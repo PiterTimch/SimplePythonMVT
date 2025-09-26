@@ -1,6 +1,6 @@
 from django import forms
 from .models import CustomUser
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm 
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(
@@ -45,3 +45,14 @@ class CustomUserCreationForm(UserCreationForm):
         if CustomUser.objects.filter(email=email).exists():
             raise forms.ValidationError("Ця електронна пошта вже зареєстрована")
         return email
+    
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label="Email", 
+        widget= forms.EmailInput(attrs={'class': 'form-control'})
+        )
+    password = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+        )
