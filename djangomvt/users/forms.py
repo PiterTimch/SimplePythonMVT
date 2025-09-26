@@ -1,6 +1,7 @@
 from django import forms
 from .models import CustomUser
 from django.contrib.auth.forms import UserCreationForm 
+from django.contrib.auth import authenticate
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(
@@ -48,11 +49,22 @@ class CustomUserCreationForm(UserCreationForm):
     
 
 class LoginForm(forms.Form):
-    username = forms.CharField(
+    email = forms.EmailField(
         label="Email", 
-        widget= forms.EmailInput(attrs={'class': 'form-control'})
-        )
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
     password = forms.CharField(
         label="Пароль",
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
-        )
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if user is None:
+                raise forms.ValidationError("Невірний email або пароль")
+        return cleaned_data

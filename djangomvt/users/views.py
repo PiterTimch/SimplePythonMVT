@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import *
 from .utils import compress_image
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as auth_login
 
 # Create your views here.
 def register(request):
@@ -21,7 +22,7 @@ def register(request):
                     optimized_image, image_name = compress_image(request.FILES['image'], size=(1200,1200))
                     user.image_large.save(image_name, optimized_image, save=False)
                 user.save()
-                return redirect('catefories:show_categories')
+                return redirect('categories:show_categories')
             except Exception as e:
                 messages.error(request, f'Помилка при реєстрації: {str(e)}')
         else:
@@ -32,17 +33,21 @@ def register(request):
  
 def login(request):
     if request.method == 'POST':
-        form = LoginForm(request.POST, request.FILES)
+        form = LoginForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save(commit=False)
-                user.email = form.cleaned_data['email']
-                user.save()
-                return redirect('catefories:show_categories')
-            except Exception as e:
-                messages.error(request, f'Помилка при реєстрації: {str(e)}')
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+
+            user = authenticate(request, username=email, password=password)
+
+            if user is not None:
+                auth_login(request, user)
+                return redirect('categories:show_categories')
+            else:
+                messages.error(request, 'Невірний email або пароль')
         else:
-            messages.success(request, 'Виправте помилки в формі')
+            messages.error(request, 'Виправте помилки у формі')
     else:
         form = LoginForm()
+    
     return render(request, 'login.html', {'form': form})

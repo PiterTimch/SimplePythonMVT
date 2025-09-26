@@ -2,22 +2,21 @@
 
 {% block content %}
 
-<h1 class="text-center">Реєстрація</h1>
+<h1 class="text-center">Вхід</h1>
 
 <div class = "row">
 <div class = "col-md-6 offset-md-3">
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     
-    {% if form.errors %}
-    <div class="alert alert-danger">
-        {% for field in form %}
-            {% for error in field.errors %}
-                <p>{{ field.label }}: {{ error }}</p>
-            {% endfor %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
         {% endfor %}
-    </div>
     {% endif %}
+
       
     <div class="mb-3">
         <label for="email" class="form-label">{{form.email.label}}</label>
@@ -28,10 +27,10 @@
     </div>
 
     <div class="mb-3">
-        <label for="password1" class="form-label">{{form.password1.label}}</label>
-        {{ form.password1 }}
-        {% if form.password1.errors %}
-            <div class="text-danger">{{ form.password1.errors }}</div>
+        <label for="password" class="form-label">{{form.password.label}}</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+            <div class="text-danger">{{ form.password.errors }}</div>
         {% endif %}
     </div>
 
