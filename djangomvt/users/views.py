@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from .forms import *
 from .utils import compress_image
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
 def register(request):
@@ -14,7 +15,7 @@ def register(request):
                 user.email = form.cleaned_data['email']
                 user.first_name = form.cleaned_data['first_name']
                 user.last_name = form.cleaned_data['last_name']
-                # Ensure password is set when using commit=False
+                
                 user.set_password(form.cleaned_data['password1'])
                 if 'image' in request.FILES:
                     optimized_image, image_name = compress_image(request.FILES['image'], size=(300,300))
@@ -24,13 +25,13 @@ def register(request):
                     optimized_image, image_name = compress_image(request.FILES['image'], size=(1200,1200))
                     user.image_large.save(image_name, optimized_image, save=False)
                 user.save()
-                # Auto-login after successful registration
+                
                 auth_login(request, user)
                 return redirect('categories:show_categories')
             except Exception as e:
                 messages.error(request, f'Помилка при реєстрації: {str(e)}')
         else:
-            messages.success(request, 'Виправте помилки в формі')
+            messages.error(request, 'Виправте помилки в формі')
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -49,8 +50,6 @@ def login(request):
         form = LoginForm()
     
     return render(request, 'login.html', {'form': form})
-
-from django.contrib.auth import logout as auth_logout
 
 def logout(request):
     auth_logout(request)

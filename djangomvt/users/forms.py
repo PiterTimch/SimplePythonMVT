@@ -64,7 +64,6 @@ class LoginForm(forms.Form):
         password = cleaned_data.get("password")
 
         if email and password:
-            # Authenticate by resolving username from email
             try:
                 user_obj = CustomUser.objects.get(email=email)
             except CustomUser.DoesNotExist:
@@ -74,7 +73,6 @@ class LoginForm(forms.Form):
             if user is None:
                 raise forms.ValidationError("Невірний email або пароль")
 
-            # store for access in view
             self._user = user
         return cleaned_data
 
