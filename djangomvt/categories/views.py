@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Category
 from .forms import CategoryForm
-from django.utils.text import slugify
 
 def show_categories(request):
     categories = Category.objects.all()
