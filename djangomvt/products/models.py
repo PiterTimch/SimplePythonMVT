@@ -37,14 +37,14 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="images"
+        Product, on_delete=models.CASCADE, related_name="images", null=True, blank=True
     )
     image = models.ImageField(upload_to="images/")
     priority = models.PositiveIntegerField(default=0, help_text="0 = головне фото")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["priority", "created_at"]  # головні фото першими
+        ordering = ["priority", "created_at"] 
 
     def save(self, *args, **kwargs):
         if self.image:
@@ -61,5 +61,7 @@ class ProductImage(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Фото [{self.priority}] для {self.product.name}"
+        if self.product:
+            return f"Фото [{self.priority}] для {self.product.name}"
+        return f"Тимчасове фото [{self.priority}]"
  
