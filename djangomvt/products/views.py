@@ -89,30 +89,36 @@ def delete_product(request, product_id):
 
     return redirect('products:show_products')
 
-@csrf_exempt
-def cleanup_temp_images(request):
-    """Видаляє тимчасові зображення старіше 1 години"""
+
+def edit_product(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return redirect('products:show_products')
+
     if request.method == "POST":
-        cutoff_time = timezone.now() - timedelta(hours=1)
-        temp_images = ProductImage.objects.filter(
-            product__isnull=True,
-            created_at__lt=cutoff_time
-        )
-        
-        deleted_count = 0
-        for img in temp_images:
-            if img.image and os.path.isfile(img.image.path):
-                try:
-                    os.remove(img.image.path)
-                    deleted_count += 1
-                except Exception as e:
-                    print(f"Error deleting file {img.image.path}: {e}")
-            img.delete()
-        
-        return JsonResponse({
-            "status": "ok", 
-            "deleted_count": deleted_count,
-            "message": f"Видалено {deleted_count} застарілих тимчасових файлів"
-        })
-    
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        form = ProductForm(request.POST, instance=product)
+        images_ids = request.POST.getlist('images')
+
+        if form.is_valid():
+            product = form.save()
+
+            existing_images = {img.id: img for img in product.images.all()}
+
+            for idx, img_id in enumerate(images_ids):
+                img_id = int(img_id)
+                if img_id in existing_images:
+                    img = existing_images[img_id]
+                    img.priority = idx
+                    img.save()
+                else:
+                    img = ProductImage.objects.get(id=img_id)
+                    img.product = product
+                    img.priority = idx
+                    img.save()
+
+            return redirect("products:show_products")
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, "edit_product.html", {"form": form, "product": product})

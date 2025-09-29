@@ -34,7 +34,7 @@
       <td class="text-center">{{ product.slug }}</span></td>
       <td class="price">{{ product.price }} ₴</td>
       <td>
-        {% comment %} <a href="{% url 'product:edit_product' product.id %}" class="btn btn-warning me-1">Edit</a> {% endcomment %}
+        <a href="{% url 'products:edit_product' product.id %}" class="btn btn-warning me-1">Edit</a>
         <button type="button" 
                 class="btn btn-sm btn-danger" 
                 data-bs-toggle="modal" 
