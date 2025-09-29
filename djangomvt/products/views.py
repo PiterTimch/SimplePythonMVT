@@ -103,22 +103,23 @@ def edit_product(request, product_id):
         if form.is_valid():
             product = form.save()
 
-            existing_images = {img.id: img for img in product.images.all()}
+            for img in product.images.all():
+                if img.image:
+                    img.image.delete(save=False)
+                img.delete()
 
             for idx, img_id in enumerate(images_ids):
-                img_id = int(img_id)
-                if img_id in existing_images:
-                    img = existing_images[img_id]
-                    img.priority = idx
-                    img.save()
-                else:
+                try:
                     img = ProductImage.objects.get(id=img_id)
                     img.product = product
                     img.priority = idx
                     img.save()
+                except ProductImage.DoesNotExist:
+                    pass
 
             return redirect("products:show_products")
     else:
         form = ProductForm(instance=product)
 
     return render(request, "edit_product.html", {"form": form, "product": product})
+

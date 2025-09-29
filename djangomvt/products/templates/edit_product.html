@@ -83,11 +83,16 @@ document.addEventListener('DOMContentLoaded', () => {
         files: [
             {% for img in product.images.all %}
             {
-                source: '{{ img.id }}',
-                options: { type: 'local', metadata: { priority: {{ img.priority }} } }
+                source: '{{ img.image.url }}',
+                options: {
+                    {% comment %} type: 'local', {% endcomment %}
+                    metadata: { file_id: '{{ img.id }}', priority: {{ img.priority }} }
+                }
             },
             {% endfor %}
         ]
+
+
     });
 
     const form = document.querySelector('#product-form');
