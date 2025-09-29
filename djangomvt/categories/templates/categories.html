@@ -5,7 +5,7 @@
     <h1 class="text-center mb-4">Категорії</h1>
 
     <a href="{% url 'categories:add_category' %}" 
-    class="btn btn-success mb-3">Додати категорію</a>
+       class="btn btn-success mb-3">Додати категорію</a>
 
     <div class="table-responsive">
         <table class="table table-hover table-striped align-middle shadow-sm">
@@ -26,47 +26,33 @@
                     <td class="text-center">{{ forloop.counter }}</td>
                     <td class="text-center">
                         {% if category.image %}
-                            <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                                 class="img-thumbnail" 
+                                 style="width: 70px; height: 70px; object-fit: cover;">
                         {% else %}
                             <span class="text-muted">Немає</span>
                         {% endif %}
                     </td>
                     <td class="text-center">{{ category.name }}</td>
-                    <td class="text-center"><span class="badge bg-secondary">{{ category.slug }}</span></td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">{{ category.slug }}</span>
+                    </td>
                     <td class="text-muted text-center">{{ category.created_at|date:"d.m.Y H:i" }}</td>
                     <td class="text-muted text-center">{{ category.updated_at|date:"d.m.Y H:i" }}</td>
                     <td class="text-muted text-center">
                         <button type="button" 
                                 class="btn btn-sm btn-danger" 
                                 data-bs-toggle="modal" 
-                                data-bs-target="#deleteModal{{ category.id }}">
+                                data-bs-target="#deleteModal"
+                                data-id="{{ category.id }}"
+                                data-name="{{ category.name }}">
                             Видалити
                         </button>
 
-                        <a href="{% url 'categories:edit_category' category.id %}" class="btn btn-sm btn-primary">Редагувати</a>
+                        <a href="{% url 'categories:edit_category' category.id %}" 
+                           class="btn btn-sm btn-primary">Редагувати</a>
                     </td>
                 </tr>
-
-                <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Підтвердження видалення</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                      </div>
-                      <div class="modal-body">
-                        Ви впевнені, що хочете видалити категорію <strong>{{ category.name }}</strong>?
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                        <form action="{% url 'categories:delete_category' category.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">Так, видалити</button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 {% empty %}
                 <tr>
                     <td colspan="7" class="text-center text-muted">Категорій ще немає</td>
@@ -76,4 +62,43 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Підтвердження видалення</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+      </div>
+      <div class="modal-body">
+        Ви впевнені, що хочете видалити категорію <strong id="categoryName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+        <form id="deleteForm" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Так, видалити</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const deleteModal = document.getElementById('deleteModal');
+    const categoryNameSpan = document.getElementById('categoryName');
+    const deleteForm = document.getElementById('deleteForm');
+
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const categoryId = button.getAttribute('data-id');
+        const categoryName = button.getAttribute('data-name');
+
+        categoryNameSpan.textContent = categoryName;
+
+        deleteForm.action = "{% url 'categories:delete_category' 0 %}".replace("0", categoryId);
+    });
+});
+</script>
 {% endblock content %}

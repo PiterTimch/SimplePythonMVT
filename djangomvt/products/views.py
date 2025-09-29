@@ -57,3 +57,19 @@ def delete_temp_image(request):
                 return JsonResponse({"error": "File not found"}, status=404)
         return JsonResponse({"error": "No file_id provided"}, status=400)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+def delete_product(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+
+        for img in product.images.all():
+            if img.image:
+                img.image.delete(save=False)
+            img.delete()
+
+        product.delete()
+
+    except Product.DoesNotExist:
+        pass
+
+    return redirect('products:show_products')

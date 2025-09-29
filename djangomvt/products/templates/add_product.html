@@ -10,7 +10,6 @@
             {% csrf_token %}
 
             <div class="row">
-                <!-- Ліва колонка: текстові поля -->
                 <div class="col-md-6">
                     <div class="mb-3">
                         {{ form.category.label_tag }}
@@ -30,7 +29,6 @@
                     </div>
                 </div>
 
-                <!-- Права колонка: фото -->
                 <div class="col-md-6">
                     <h5 class="mt-0">Фото товару</h5>
                     <input type="file" name="images" id="product-images" multiple class="form-control mb-3">
@@ -44,16 +42,10 @@
     </div>
 </div>
 
-<!-- Підключаємо плагіни FilePond для прев’ю -->
-<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 
-<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Регіструємо плагін
     FilePond.registerPlugin(FilePondPluginImagePreview);
 
     const inputElement = document.querySelector('#product-images');
@@ -94,8 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const form = document.querySelector('#product-form');
     form.addEventListener('submit', function() {
-        // Видаляємо старі hidden input
-        document.querySelectorAll('input[name="images"]').forEach(i => i.remove());
+        
 
         pond.getFiles().forEach((file, index) => {
             const input = document.createElement('input');
