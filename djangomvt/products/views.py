@@ -5,6 +5,12 @@ from .forms import ProductForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import os
+from django.utils import timezone
+from datetime import timedelta
+import uuid
+from io import BytesIO
+from django.core.files.base import ContentFile
+from PIL import Image
 
 def show_products(request):
     products = Product.objects.prefetch_related("images").all()
@@ -32,13 +38,22 @@ def add_product(request):
 @csrf_exempt
 def upload_temp_image(request):
     if request.method == "POST":
-        print("FILES:", request.FILES)
         file_key = list(request.FILES.keys())[0]
         image_file = request.FILES[file_key]
-        img = ProductImage.objects.create(image=image_file, priority=0)
-        return JsonResponse({"file_id": img.id})
-    return JsonResponse({"error": "Нема файлу"}, status=400)
 
+        img = ProductImage()
+        img_image = Image.open(image_file)
+        if img_image.mode in ("RGBA", "P"):
+            img_image = img_image.convert("RGB")
+
+        filename = f"{uuid.uuid4().hex}.webp"
+        buffer = BytesIO()
+        img_image.save(buffer, format="WEBP")
+        buffer.seek(0)
+        img.image.save(filename, ContentFile(buffer.read()), save=True)
+        
+        return JsonResponse({"file_id": img.id})
+    
 @csrf_exempt
 def delete_temp_image(request):
     if request.method == "DELETE":
@@ -73,3 +88,31 @@ def delete_product(request, product_id):
         pass
 
     return redirect('products:show_products')
+
+@csrf_exempt
+def cleanup_temp_images(request):
+    """Видаляє тимчасові зображення старіше 1 години"""
+    if request.method == "POST":
+        cutoff_time = timezone.now() - timedelta(hours=1)
+        temp_images = ProductImage.objects.filter(
+            product__isnull=True,
+            created_at__lt=cutoff_time
+        )
+        
+        deleted_count = 0
+        for img in temp_images:
+            if img.image and os.path.isfile(img.image.path):
+                try:
+                    os.remove(img.image.path)
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Error deleting file {img.image.path}: {e}")
+            img.delete()
+        
+        return JsonResponse({
+            "status": "ok", 
+            "deleted_count": deleted_count,
+            "message": f"Видалено {deleted_count} застарілих тимчасових файлів"
+        })
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)
