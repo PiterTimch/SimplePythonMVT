@@ -3,7 +3,6 @@ from django.utils.text import slugify
 from unidecode import unidecode
 from categories.models import Category
 
-
 class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="products"

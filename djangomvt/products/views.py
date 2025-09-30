@@ -1,12 +1,9 @@
 from django.shortcuts import render, redirect
-from django.forms import modelformset_factory
 from .models import Product, ProductImage
 from .forms import ProductForm
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import os
-from django.utils import timezone
-from datetime import timedelta
 import uuid
 from io import BytesIO
 from django.core.files.base import ContentFile
