@@ -23,7 +23,9 @@
        <td>
           {% with main_image=product.images.all|dictsort:"priority"|first %}
               {% if main_image %}
-                  <img width="100px" src="{{ main_image.image.url }}" alt="{{ product.name }}" class="product-img">
+                  {% for item in product.images.all %}
+                    <img width="100px" src="{{ item.image.url }}" alt="{{ product.name }}" class="product-img">
+                  {% endfor %}
               {% else %}
                   <img width="100px" src="{% static 'images/no-image.png' %}" alt="No image" class="product-img">
               {% endif %}
